@@ -37,6 +37,26 @@ E.g. for all methods returning Buffers,
 as those classes cannot be instantiated easily.
 All redirections can be found in the
 [redirections package](src/main/java/io/github/headlesshq/headlessmc/lwjgl/redirections).
+
+Minecraft 26.3 uses SDL for windowing and RenderPearl for rendering. The headless
+redirections use OpenGL and report Vulkan unavailable. Shaderc results and SPVC
+reflection are stubbed along with drawing; these are not native shader modules.
+Shader syntax and compilation errors are not checked in this mode. A successful
+headless launch must not be treated as shader validation. The client logs this
+limitation once when shader bytes are first requested.
+The SDL swap call uses the existing `hmc.lwjgl.update_sleep` setting. Display
+enumeration reports the same display ID as the primary-display query. Buffer
+allocations and graphics-provider proxies are shared redirections rather than
+SDL-specific behavior.
+
+On Linux with Java 25, Fabric, NeoForge and Forge have passed the
+`mc-runtime-test` fresh-world smoke test: create a world, load the player and
+chunks, wait 100 player ticks, then save and exit. This does not validate native
+rendering, screenshots, gameplay mods or other operating systems. Separate
+Linux runs without LWJGL redirection also completed a GameTest on all three
+loaders using SDL offscreen and Mesa llvmpipe OpenGL, exercising the ordinary
+shader and rendering path.
+
 An example:
 
 ```java
