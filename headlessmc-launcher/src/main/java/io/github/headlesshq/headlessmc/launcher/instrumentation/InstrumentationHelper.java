@@ -5,9 +5,11 @@ import lombok.experimental.UtilityClass;
 import lombok.val;
 import io.github.headlesshq.headlessmc.launcher.instrumentation.log4j.Patchers;
 import io.github.headlesshq.headlessmc.launcher.instrumentation.lwjgl.HmcLwjglTransformer;
+import io.github.headlesshq.headlessmc.launcher.instrumentation.lwjgl.MacosMenuTransformer;
 import io.github.headlesshq.headlessmc.launcher.instrumentation.modlauncher.BootstrapLauncherTransformer;
 import io.github.headlesshq.headlessmc.launcher.instrumentation.paulscode.PaulscodeTransformer;
 import io.github.headlesshq.headlessmc.launcher.launch.LaunchOptions;
+import io.github.headlesshq.headlessmc.os.OS;
 
 import java.util.ArrayList;
 
@@ -21,6 +23,9 @@ public class InstrumentationHelper {
         val transformers = new ArrayList<Transformer>(7);
         if (options.isLwjgl()) {
             transformers.add(new HmcLwjglTransformer());
+            if (options.getLauncher().getProcessFactory().getOs().getType() == OS.Type.OSX) {
+                transformers.add(new MacosMenuTransformer());
+            }
             transformers.add(new ResourceExtractor(options.getFiles(), LWJGL_JAR));
         }
 
