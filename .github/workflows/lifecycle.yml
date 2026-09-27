@@ -13,12 +13,21 @@ name: Lifecycle
       - synchronize
       - reopened
   workflow_dispatch:
+    inputs:
+      runtime_test_repository:
+        description: 'mc-runtime-test repository for the 26.3 candidate'
+        default: 'headlesshq/mc-runtime-test'
+        type: string
+      runtime_test_ref:
+        description: 'mc-runtime-test branch or commit for the 26.3 candidate'
+        default: 'main'
+        type: string
 
 concurrency: # FIXME: prevent release commit cancellation
   group: >
     ${{ github.workflow }}-
     ${{ github.event_name }}-
-    ${{ github.event.inputs.ref || github.ref }}
+    ${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -500,7 +509,8 @@ jobs:
     if: '!cancelled()' # run always cause we want to see how each version is doing
     #if: false for when mc-runtime-test is up to date and HeadlessMc can launch any version
     with:
-      branch: ${{ matrix.version.branch }}
+      repository: ${{ matrix.version.mc == '26.3' && inputs.runtime_test_repository || 'headlesshq/mc-runtime-test' }}
+      branch: ${{ matrix.version.mc == '26.3' && inputs.runtime_test_ref || matrix.version.branch }}
       dir: ${{ matrix.version.dir }}
       mc: ${{ matrix.version.mc }}
       lex: ${{ matrix.version.lex }}
@@ -561,6 +571,16 @@ jobs:
           headlessmc-command: >-
             -lwjgl --retries 2 --jvm '"-Djava.awt.headless=true${{ matrix.version.mc == '26.3' && ' -DMcRuntimeGameTestInstance=minecraft:always_pass -DMcRuntimeGameTestMinExpectedGameTests=1' || '' }}"'
           download-hmc: false
+
+      - name: Retain candidate game logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: candidate-game-logs-${{ matrix.version.mc }}-${{ matrix.version.type }}
+          path: |
+            run/logs/**
+            run/crash-reports/**
+          if-no-files-found: ignore
 
   server-test:
     strategy:
