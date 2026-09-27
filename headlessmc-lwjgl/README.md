@@ -49,6 +49,10 @@ enumeration reports the same display ID as the primary-display query. Buffer
 allocations and graphics-provider proxies are shared redirections rather than
 SDL-specific behavior.
 
+On macOS, the launcher also skips Minecraft's native window-menu setup in
+no-render mode. SDL has not created a Cocoa window or menu in that mode.
+The ordinary rendering path keeps the menu setup.
+
 On Linux with Java 25, Fabric, NeoForge and Forge have passed the
 `mc-runtime-test` fresh-world smoke test: create a world, load the player and
 chunks, wait 100 player ticks, then save and exit. This does not validate native
