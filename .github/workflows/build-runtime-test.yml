@@ -2,6 +2,11 @@ name: Build mc-runtime-test
 on:
   workflow_call:
     inputs:
+      repository:
+        description: 'The mc-runtime-test repository to check out'
+        default: 'headlesshq/mc-runtime-test'
+        required: false
+        type: string
       branch:
         description: 'The branch of mc-runtime-test to check out'
         default: 'main'
@@ -9,27 +14,22 @@ on:
         type: string
       dir:
         description: 'The directory of mc-runtime-test to build in'
-        default: '1_21_5'
         required: true
         type: string
       java:
         description: 'The Java version to use'
-        default: 21
         required: true
         type: number
       mc:
         description: 'The Minecraft version to build for'
-        default: '1.21.5'
         required: true
         type: string
       lex:
         description: 'The LexForge version to build for'
-        default: '55.0.3'
         required: true
         type: string
       neo:
         description: 'The NeoForge version to build for'
-        default: '24-beta'
         required: true
         type: string
 
@@ -40,7 +40,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          repository: headlesshq/mc-runtime-test
+          repository: ${{ inputs.repository }}
           ref: ${{ inputs.branch }}
 
       - name: Get commit SHA of checked-out repo
